@@ -7,25 +7,29 @@ if [ "$(id -u)" != "0" ]; then
 fi
 
 # Shred system log files
-shred -uzn 5 /var/log/auth.log /var/log/lastlog /var/log/wtmp /var/log/btmp || {
+if find /var/log -type f \( -name "auth.log*" -o -name "lastlog*" -o -name "wtmp*" -o -name "btmp*" \) -exec shred -uzn 5 {} \; ; then
+    echo "Successfully shredded system log files."
+else
     echo "Error: Failed to shred system log files"
     exit 1
-}
-echo "Successfully shredded system log files."
+fi
 
 # Shred root user's bash history
-shred -uzn 5 ~/.bash_history || {
+if shred -uzn 5 ~/.bash_history; then
+    echo "Successfully shredded root user's bash history."
+else
     echo "Error: Failed to shred root user's bash history"
     exit 1
-}
-echo "Successfully shredded root user's bash history."
+fi
 
 # Shred all users' bash history
-find /home -type f -name '.bash_history' -exec shred -uzn 5 {} \; || {
+if find /home -type f -name '.bash_history' -exec shred -uzn 5 {} \; ; then
+    echo "Successfully shredded all users' bash history."
+else
     echo "Error: Failed to shred all users' bash history"
     exit 1
-}
-echo "Successfully shredded all users' bash history."
+fi
+
 
 
 
